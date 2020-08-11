@@ -3,7 +3,7 @@
 
 <head>
   <meta charset='utf-8'>
-  <title>parameter demo</title>
+  <title>event.currentTarget</title>
 
   <style>
     .centered {
@@ -41,24 +41,37 @@
     const demoHandler = (event) => {
       debugger;
 
+      const eventType = event.type;
+      const eventTarget = event.target;
+
       const currentTarget = event.currentTarget;
-      const id = currentTarget.id;
-      const nodeName = currentTarget.nodeName;
 
-      const path = event.path;
-      const currentIndex = path.indexOf(currentTarget);
+      const composedPath = event.composedPath();
+      const pathListItems = composedPath
+        .map((el, index) => {
+          let listItem = `${index}. ${el.nodeName || 'window'}${el.id ? '#' + el.id : ''}`;
+          if (el === currentTarget) {
+            listItem = '---- current target ---- \n   ' + listItem + '\n---- current target ----';
+          };
+          return listItem;
+        });
+      const renderedPathElements = pathListItems
+        .reduce((list, item) => {
+          return `${list}\n${item}`;
+        }, '');
 
-      const message = `bubbling past the ${currentIndex}th element in it's path:\n`
-        + ` nodeName: ${nodeName}\n`
-        + ` id: ${id}`;
+      const message = `"${eventType}" event dispatched from "${eventTarget.id}" bubbles past:`
+        + renderedPathElements;
       alert(message);
     };
+
+    // https://developer.mozilla.org/en-US/docs/Web/API/Event/currentTarget
   </script>
 </head>
 
 <body>
 
-  <main id='user interface' class='centered'>
+  <main id='user-interface' class='centered'>
     <div id='div-el-2' class='centered'>
       <section id='section-el' class='centered'>
         <div id='div-el-1' class='centered'>
@@ -71,16 +84,28 @@
   </main>
 
   <script id='listeners'>
-    document.getElementById('section-el')
+    document.getElementById('button-el')
       .addEventListener('click', demoHandler);
 
     document.getElementById('div-el-1')
       .addEventListener('click', demoHandler);
 
-    document.getElementById('button-el')
+    document.getElementById('section-el')
       .addEventListener('click', demoHandler);
 
     document.getElementById('div-el-2')
+      .addEventListener('click', demoHandler);
+
+    document.getElementById('user-interface')
+      .addEventListener('click', demoHandler);
+
+    document.body
+      .addEventListener('click', demoHandler);
+
+    document
+      .addEventListener('click', demoHandler);
+
+    window
       .addEventListener('click', demoHandler);
   </script>
 
